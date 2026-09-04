@@ -1,0 +1,527 @@
+.page {
+  min-height: 100vh;
+  background: #f6f7f9;
+  padding: 32px 42px;
+  color: #252328;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 25px;
+}
+
+.backButton {
+  border: none;
+  background: transparent;
+  padding: 0;
+  color: #704154;
+  font-size: 12px;
+  cursor: pointer;
+  margin-bottom: 16px;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.code {
+  margin: 0 0 5px;
+  color: #8d6978;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.titleRow h1 {
+  margin: 0;
+  font-size: 29px;
+  letter-spacing: -0.6px;
+}
+
+.subtitle {
+  margin: 6px 0 0;
+  color: #858990;
+  font-size: 13px;
+}
+
+.updateButton {
+  background: #704154;
+  color: white;
+  border: none;
+  border-radius: 9px;
+  padding: 12px 19px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 11px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.status i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.onTrack {
+  color: #278454;
+  background: #edf8f1;
+}
+
+.onTrack i {
+  background: #39a76a;
+}
+
+.atRisk {
+  color: #b77723;
+  background: #fff5e5;
+}
+
+.atRisk i {
+  background: #d89232;
+}
+
+.delayed {
+  color: #bd4f4f;
+  background: #fff0f0;
+}
+
+.delayed i {
+  background: #cd5c5c;
+}
+
+.progressCard,
+.card {
+  background: white;
+  border: 1px solid #e4e5e8;
+  border-radius: 13px;
+  box-shadow: 0 4px 18px rgba(25, 25, 25, 0.025);
+}
+
+.progressCard {
+  padding: 23px;
+  margin-bottom: 18px;
+}
+
+.progressTop {
+  display: flex;
+  align-items: center;
+  gap: 55px;
+  margin-bottom: 20px;
+}
+
+.label {
+  color: #999da3;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.7px;
+}
+
+.bigProgress {
+  margin-top: 4px;
+  font-size: 38px;
+  font-weight: 700;
+  color: #704154;
+}
+
+.plannedBox,
+.gapBox {
+  border-left: 1px solid #e8e8ea;
+  padding-left: 35px;
+}
+
+.plannedBox span,
+.gapBox span {
+  display: block;
+  color: #999da3;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.plannedBox strong,
+.gapBox strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 21px;
+}
+
+.negative {
+  color: #c55555;
+}
+
+.positive {
+  color: #2a8c5b;
+}
+
+.largeTrack {
+  height: 9px;
+  background: #e8e8eb;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.normalProgress,
+.riskProgress,
+.delayedProgress {
+  height: 100%;
+  border-radius: 20px;
+}
+
+.normalProgress {
+  background: #704154;
+}
+
+.riskProgress {
+  background: #d58d31;
+}
+
+.delayedProgress {
+  background: #c75a5a;
+}
+
+.progressLabels {
+  display: flex;
+  justify-content: space-between;
+  color: #a0a3a8;
+  font-size: 9px;
+  margin-top: 6px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.card {
+  padding: 22px;
+  margin-bottom: 18px;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.cardHeader h2 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.cardHeader p {
+  margin: 5px 0 0;
+  color: #92969c;
+  font-size: 11px;
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.infoGrid span,
+.description span {
+  display: block;
+  color: #999da4;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.infoGrid strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 12px;
+}
+
+.description {
+  border-top: 1px solid #ededee;
+  margin-top: 22px;
+  padding-top: 17px;
+}
+
+.description p {
+  margin: 7px 0 0;
+  color: #676b72;
+  line-height: 1.6;
+  font-size: 11px;
+}
+
+.schedule {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 15px 0;
+}
+
+.dateItem span {
+  display: block;
+  color: #999da4;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.dateItem strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+}
+
+.line {
+  flex: 1;
+  height: 1px;
+  background: #dddfe2;
+  position: relative;
+}
+
+.line::after {
+  content: "→";
+  position: absolute;
+  right: -4px;
+  top: -9px;
+  color: #704154;
+  background: white;
+  padding: 0 4px;
+}
+
+.secondaryButton {
+  border: 1px solid #dddfe3;
+  background: white;
+  color: #704154;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.evidenceGrid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 15px;
+}
+
+.evidencePlaceholder {
+  min-height: 175px;
+  border: 1px dashed #d5d7db;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  gap: 7px;
+}
+
+.cameraIcon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #f4edef;
+  color: #704154;
+  font-size: 19px;
+  margin-bottom: 3px;
+}
+
+.evidencePlaceholder strong {
+  font-size: 12px;
+}
+
+.evidencePlaceholder span {
+  color: #999da4;
+  font-size: 10px;
+}
+
+.evidencePlaceholder button {
+  margin-top: 8px;
+  border: 1px solid #dddfe3;
+  background: white;
+  border-radius: 7px;
+  padding: 7px 12px;
+  color: #704154;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.gpsCard {
+  min-height: 175px;
+  background: #faf8f9;
+  border-radius: 10px;
+  padding: 22px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.gpsIcon {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #eee4e8;
+  color: #704154;
+  font-size: 20px;
+}
+
+.gpsCard span {
+  display: block;
+  color: #999da4;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.gpsCard strong {
+  display: block;
+  margin-top: 7px;
+  font-size: 12px;
+}
+
+.gpsCard small {
+  display: block;
+  margin-top: 8px;
+  color: #999da4;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.timeline {
+  position: relative;
+  padding-left: 12px;
+}
+
+.timelineItem {
+  display: flex;
+  gap: 15px;
+  position: relative;
+  padding-bottom: 22px;
+}
+
+.timelineItem:last-child {
+  padding-bottom: 0;
+}
+
+.timelineDot {
+  width: 9px;
+  height: 9px;
+  margin-top: 4px;
+  border-radius: 50%;
+  background: #704154;
+  box-shadow: 0 0 0 4px #f2e9ed;
+  flex-shrink: 0;
+}
+
+.timelineItem strong {
+  font-size: 12px;
+}
+
+.timelineItem p {
+  margin: 5px 0;
+  color: #73777e;
+  font-size: 10px;
+}
+
+.timelineItem small {
+  color: #a0a3a8;
+  font-size: 9px;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 2px;
+  color: #9a9da3;
+  font-size: 9px;
+}
+
+.notFound {
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.notFound h1 {
+  font-size: 25px;
+}
+
+.notFound p {
+  color: #888;
+  font-size: 12px;
+}
+
+.notFound button {
+  margin-top: 12px;
+  border: none;
+  background: #704154;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+@media (max-width: 850px) {
+  .page {
+    padding: 22px;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+  }
+
+  .grid,
+  .evidenceGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .progressTop {
+    gap: 25px;
+  }
+}
+
+@media (max-width: 600px) {
+  .titleRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .infoGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .progressTop {
+    flex-wrap: wrap;
+  }
+
+  .plannedBox,
+  .gapBox {
+    padding-left: 20px;
+  }
+
+  .footer {
+    flex-direction: column;
+    gap: 5px;
+  }
+}

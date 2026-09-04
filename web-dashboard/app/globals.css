@@ -1,7 +1,35 @@
 @import "tailwindcss";
 
+* {
+  box-sizing: border-box;
+}
+
+html,
 body {
-  background-color: #f9fafb;
-  color: #111827;
-  font-family: system-ui, -apple-system, sans-serif;
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: #f7f5f3;
+  color: #26312f;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
 }
