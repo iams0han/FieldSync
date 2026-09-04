@@ -1,10 +1,13 @@
 import os
 import shutil
+import tempfile
+
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from ultralytics import YOLO
-import whisper
+
 from parse import parse_yolo_results, parse_whisper_transcript
+
 
 app = FastAPI(title="FieldSync AI Worker Service")
 
@@ -16,47 +19,126 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-print("Loading YOLO11 Nano model...")
-yolo_model = YOLO('yolo11n.pt')
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-print("Loading OpenAI Whisper Base...")
-whisper_model = whisper.load_model("base")
+YOLO_MODEL_PATH = os.path.join(BASE_DIR, "yolo11n.pt")
+
+# Helps avoid Ultralytics trying to write inside /root
+os.environ["YOLO_CONFIG_DIR"] = "/tmp/Ultralytics"
+
+print("Loading YOLO11 Nano model...")
+yolo_model = YOLO(YOLO_MODEL_PATH)
+
+# IMPORTANT:
+# Do NOT load Whisper during startup.
+# It will be loaded only when audio is actually submitted.
+whisper_model = None
+
+
+def get_whisper_model():
+    global whisper_model
+
+    if whisper_model is None:
+        print("Loading OpenAI Whisper Tiny...")
+        import whisper
+        whisper_model = whisper.load_model("tiny")
+
+    return whisper_model
+
+
+@app.get("/")
+async def root():
+    return {
+        "service": "FieldSync AI Worker",
+        "status": "running",
+        "endpoint": "/analyze",
+    }
+
+
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
+
 
 @app.post("/analyze")
 async def analyze(
     image: UploadFile = File(None),
-    audio: UploadFile = File(None)
+    audio: UploadFile = File(None),
 ):
     results = {
         "vision_analysis": [],
         "voice_transcript": None,
-        "verified": True
+        "verified": True,
     }
 
+    # -------------------------
+    # IMAGE ANALYSIS
+    # -------------------------
     if image:
-        temp_img = f"temp_{image.filename}"
-        with open(temp_img, "wb") as buffer:
-            shutil.copyfileobj(image.file, buffer)
-        try:
-            yolo_out = yolo_model(temp_img)
-            results["vision_analysis"] = parse_yolo_results(yolo_out)
-        finally:
-            if os.path.exists(temp_img):
-                os.remove(temp_img)
+        suffix = os.path.splitext(
+            image.filename or "image.jpg"
+        )[1] or ".jpg"
 
-    if audio:
-        temp_aud = f"temp_{audio.filename}"
-        with open(temp_aud, "wb") as buffer:
-            shutil.copyfileobj(audio.file, buffer)
+        temp_path = None
+
         try:
-            transcription = whisper_model.transcribe(temp_aud)
-            results["voice_transcript"] = parse_whisper_transcript(transcription.get("text", ""))
+            with tempfile.NamedTemporaryFile(
+                delete=False,
+                suffix=suffix
+            ) as tmp:
+                temp_path = tmp.name
+                shutil.copyfileobj(image.file, tmp)
+
+            yolo_out = yolo_model(temp_path)
+
+            results["vision_analysis"] = parse_yolo_results(
+                yolo_out
+            )
+
         finally:
-            if os.path.exists(temp_aud):
-                os.remove(temp_aud)
+            if temp_path and os.path.exists(temp_path):
+                os.remove(temp_path)
+
+    # -------------------------
+    # AUDIO ANALYSIS
+    # -------------------------
+    if audio:
+        suffix = os.path.splitext(
+            audio.filename or "audio.wav"
+        )[1] or ".wav"
+
+        temp_path = None
+
+        try:
+            with tempfile.NamedTemporaryFile(
+                delete=False,
+                suffix=suffix
+            ) as tmp:
+                temp_path = tmp.name
+                shutil.copyfileobj(audio.file, tmp)
+
+            model = get_whisper_model()
+
+            transcription = model.transcribe(temp_path)
+
+            results["voice_transcript"] = parse_whisper_transcript(
+                transcription.get("text", "")
+            )
+
+        finally:
+            if temp_path and os.path.exists(temp_path):
+                os.remove(temp_path)
 
     return results
 
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+
+    port = int(os.getenv("PORT", "8000"))
+
+    uvicorn.run(
+        app,
+        host="0.0.0.0",
+        port=port
+    )
