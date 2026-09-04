@@ -60,13 +60,14 @@ rt.get('/projects', async (q, rs) => {
     rs.json(d.rows);
 
   } catch (e) {
-  console.error('PROJECTS ERR FULL:', e);
+    console.error('PROJECTS ERR FULL:', e);
 
-  rs.status(500).json({
-    err: 'Failed to fetch projects',
-    message: e?.message || String(e)
-  });
-}
+    rs.status(500).json({
+      err: 'Failed to fetch projects',
+      message: e?.message || String(e)
+    });
+  }
+});
 
 
 // =====================================================
