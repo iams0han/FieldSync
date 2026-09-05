@@ -13,18 +13,34 @@ const p = db;
 const ax = axios;
 
 // =====================================================
-// SUPABASE STORAGE & MULTER CONFIGURATION
+// MULTER CONFIGURATION
 // =====================================================
 
-const { createClient } = require('@supabase/supabase-js');
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_PUBLISHABLE_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
+const uploadDir = path.join(__dirname, 'uploads');
 
-const BUCKET_NAME = process.env.SUPABASE_BUCKET || 'fieldsync';
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
 
-const storage = multer.memoryStorage();
-const up = multer({ storage });
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadDir);
+  },
+
+  filename: (req, file, cb) => {
+    const uniqueName =
+      Date.now() +
+      '-' +
+      Math.round(Math.random() * 1e9) +
+      path.extname(file.originalname);
+
+    cb(null, uniqueName);
+  }
+});
+
+const up = multer({
+  storage
+});
 
 // =====================================================
 // PROJECTS
@@ -407,27 +423,10 @@ rt.post(
     // CLEAN FILE URL
     // -----------------------------------------
 
-    let u = q.body.u;
-    if (q.file) {
-      const fileName = Date.now() + '-' + q.file.originalname;
-      const { data, error } = await supabase
-        .storage
-        .from(BUCKET_NAME)
-        .upload(fileName, q.file.buffer, {
-          contentType: q.file.mimetype
-        });
-
-      if (error) {
-        throw new Error('Supabase upload failed: ' + error.message);
-      }
-      
-      const { data: publicUrlData } = supabase
-        .storage
-        .from(BUCKET_NAME)
-        .getPublicUrl(fileName);
-        
-      u = publicUrlData.publicUrl;
-    }
+    const u =
+      q.file
+        ? `/uploads/${q.file.filename}`
+        : q.body.u;
 
     try {
 
@@ -484,9 +483,9 @@ rt.post(
 
           form.append(
             'image',
-            q.file.buffer,
+            fs.createReadStream(q.file.path),
             {
-              filename: q.file.originalname,
+              filename: q.file.filename,
               contentType: q.file.mimetype
             }
           );
@@ -501,9 +500,9 @@ rt.post(
 
           form.append(
             'audio',
-            q.file.buffer,
+            fs.createReadStream(q.file.path),
             {
-              filename: q.file.originalname,
+              filename: q.file.filename,
               contentType: q.file.mimetype
             }
           );
@@ -1202,7 +1201,7 @@ rt.post(
     // PARSE CSV
     // -----------------------------------------
 
-    require('stream').Readable.from(q.file.buffer)
+    fs.createReadStream(q.file.path)
       .pipe(csv())
 
       .on('data', (row) => {

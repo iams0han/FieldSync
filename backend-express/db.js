@@ -1,7 +1,11 @@
 const { Pool } = require("pg");
 
 const pool = new Pool({
-  connectionString: process.env.DB_URI,
+  user: process.env.DB_U,
+  host: process.env.DB_H,
+  database: process.env.DB_N,
+  password: process.env.DB_P,
+  port: Number(process.env.DB_PT),
 });
 
 pool.query("SELECT NOW()")

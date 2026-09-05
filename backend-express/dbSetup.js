@@ -5,59 +5,72 @@ const db = require('./db');
 const init = async () => {
     try {
         await db.query(`
-            DROP TABLE IF EXISTS evd, act, wbs, prj CASCADE;
+            DROP TABLE IF EXISTS entries, delay_alerts, reports, documents, wbs_nodes CASCADE;
 
-            CREATE TABLE prj (
+            CREATE TABLE wbs_nodes (
                 id SERIAL PRIMARY KEY,
-                tnt VARCHAR(50) DEFAULT 'tenant_1',
-                nm VARCHAR(255) NOT NULL,
-                st VARCHAR(50) DEFAULT 'ACTIVE',
+                code VARCHAR(50) UNIQUE NOT NULL,
+                level INT NOT NULL,
+                parent_id INT REFERENCES wbs_nodes(id) ON DELETE CASCADE,
+                name VARCHAR(255) NOT NULL,
+                discipline VARCHAR(100) NOT NULL,
+                weight FLOAT NOT NULL DEFAULT 1.0,
+                planned_progress FLOAT NOT NULL DEFAULT 0.0,
+                progress FLOAT NOT NULL DEFAULT 0.0,
+                status VARCHAR(50) DEFAULT 'ON_TRACK',
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+
+            CREATE TABLE entries (
+                id SERIAL PRIMARY KEY,
+                wbs_id INT REFERENCES wbs_nodes(id) ON DELETE CASCADE,
+                progress FLOAT NOT NULL,
+                quantity FLOAT NOT NULL,
+                unit VARCHAR(50),
+                lat FLOAT,
+                lng FLOAT,
+                image_path VARCHAR(255),
+                audio_path VARCHAR(255),
+                transcript TEXT,
+                ai_tags JSONB DEFAULT '[]',
+                status VARCHAR(50) DEFAULT 'SYNCED',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
 
-            CREATE TABLE wbs (
+            CREATE TABLE delay_alerts (
                 id SERIAL PRIMARY KEY,
-                pid INT REFERENCES prj(id) ON DELETE CASCADE,
-                prnt INT REFERENCES wbs(id) ON DELETE CASCADE,
-                cd VARCHAR(50) NOT NULL,
-                nm VARCHAR(255) NOT NULL,
-                lvl INT DEFAULT 1,
+                wbs_id INT REFERENCES wbs_nodes(id) ON DELETE CASCADE,
+                discipline VARCHAR(100),
+                title VARCHAR(255) NOT NULL,
+                details VARCHAR(255),
+                severity VARCHAR(20) DEFAULT 'MEDIUM',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
 
-            CREATE TABLE act (
+            CREATE TABLE reports (
                 id SERIAL PRIMARY KEY,
-                wbs_id INT REFERENCES wbs(id) ON DELETE CASCADE,
-                wid INT REFERENCES wbs(id) ON DELETE CASCADE,
-                nm VARCHAR(255) NOT NULL,
-                plan_qty FLOAT NOT NULL DEFAULT 0,
-                act_qty FLOAT NOT NULL DEFAULT 0,
-                unt VARCHAR(50),
-                st VARCHAR(50) DEFAULT 'PENDING',
+                title VARCHAR(255) NOT NULL,
+                report_type VARCHAR(50) NOT NULL,
+                file_size VARCHAR(50),
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
 
-            CREATE TABLE evd (
+            CREATE TABLE documents (
                 id SERIAL PRIMARY KEY,
-                pid INT REFERENCES act(id) ON DELETE CASCADE,
-                typ VARCHAR(20),
-                uri VARCHAR(255),
-                loc VARCHAR(255),
-                ai_result JSONB,
-                ai_confidence FLOAT,
-                review_status VARCHAR(50) DEFAULT 'PENDING',
-                review_reason TEXT,
-                reviewed_by VARCHAR(100),
-                reviewed_at TIMESTAMP,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                name VARCHAR(255) NOT NULL,
+                category VARCHAR(100) NOT NULL,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
 
-            CREATE TABLE aud (
+            CREATE TABLE IF NOT EXISTS sync_conflicts (
                 id SERIAL PRIMARY KEY,
-                uid INT,
-                act VARCHAR(255),
-                bfr JSONB,
-                aft JSONB,
+                task_code VARCHAR(50) NOT NULL,
+                title VARCHAR(255) NOT NULL,
+                conflict_type VARCHAR(50) NOT NULL, -- e.g. 'FAILED_UPLOAD', 'PROGRESS_CONFLICT', 'LOCATION_MISMATCH'
+                mobile_value VARCHAR(100),
+                manual_value VARCHAR(100),
+                details TEXT,
+                status VARCHAR(50) DEFAULT 'UNRESOLVED',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         `);
