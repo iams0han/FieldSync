@@ -451,11 +451,17 @@ rt.post(
       }
 
       // -----------------------------------------
-      // AI ANALYSIS
+      // AI DEFAULT VALUES
       // -----------------------------------------
 
-      let aiResult = 'AI analysis completed';
+      let aiResult =
+        'AI analysis completed';
+
       let aiConfidence = 90;
+
+      // -----------------------------------------
+      // AI ANALYSIS
+      // -----------------------------------------
 
       if (q.file) {
 
@@ -509,80 +515,132 @@ rt.post(
 
         if (isImage || isAudio) {
 
-          const ai =
-            await ax.post(
-              'https://fieldsync-ai-worker.onrender.com/analyze',
-              form,
-              {
-                headers: form.getHeaders(),
+          try {
 
-                maxContentLength:
-                  Infinity,
-
-                maxBodyLength:
-                  Infinity
-              }
+            console.log(
+              'Sending evidence to AI Worker...'
             );
 
-          // -------------------------------------
-          // PARSE AI RESPONSE
-          // -------------------------------------
+            const ai =
+              await ax.post(
+                'https://fieldsync-ai-worker.onrender.com/analyze',
+                form,
+                {
+                  headers:
+                    form.getHeaders(),
 
-          if (
-            Array.isArray(
-              ai.data?.vision_analysis
-            ) &&
-            ai.data.vision_analysis.length
-          ) {
+                  maxContentLength:
+                    Infinity,
 
-            aiResult =
-              ai.data.vision_analysis
-                .map((x) => {
+                  maxBodyLength:
+                    Infinity,
 
-                  const name =
-                    x.class_name ||
-                    x.class ||
-                    x.name ||
-                    'object';
-
-                  return `Detected: ${name}`;
-                })
-                .join(', ');
-
-            aiConfidence =
-              Number(
-                ai.data.vision_analysis[0]?.confidence ||
-                90
+                  timeout:
+                    90000
+                }
               );
 
-          }
+            console.log(
+              'AI Worker response:',
+              ai.status
+            );
 
-          else if (
-            ai.data?.voice_transcript
-          ) {
+            // -----------------------------------
+            // PARSE AI RESPONSE
+            // -----------------------------------
 
-            const transcript =
-              ai.data.voice_transcript;
+            if (
+              Array.isArray(
+                ai.data?.vision_analysis
+              ) &&
+              ai.data.vision_analysis.length
+            ) {
+
+              aiResult =
+                ai.data.vision_analysis
+                  .map((x) => {
+
+                    const name =
+                      x.label ||
+                      x.class_name ||
+                      x.class ||
+                      x.name ||
+                      'object';
+
+                    return `Detected: ${name}`;
+                  })
+                  .join(', ');
+
+              aiConfidence =
+                Number(
+                  ai.data
+                    .vision_analysis[0]
+                    ?.confidence ||
+                  90
+                );
+
+            }
+
+            // -----------------------------------
+            // VOICE TRANSCRIPT
+            // -----------------------------------
+
+            else if (
+              ai.data?.voice_transcript
+            ) {
+
+              const transcript =
+                ai.data.voice_transcript;
+
+              aiResult =
+                transcript?.text ||
+                transcript?.transcript ||
+                'Voice transcription completed';
+
+              aiConfidence =
+                Number(
+                  transcript?.confidence ||
+                  90
+                );
+
+            }
+
+            // -----------------------------------
+            // NO AI RESULT
+            // -----------------------------------
+
+            else {
+
+              aiResult =
+                'AI analysis completed';
+
+              aiConfidence =
+                90;
+            }
+
+          } catch (aiError) {
+
+            // ===================================
+            // IMPORTANT:
+            // AI FAILURE MUST NOT FAIL UPLOAD
+            // ===================================
+
+            console.error(
+              'AI WORKER ERROR STATUS:',
+              aiError?.response?.status
+            );
+
+            console.error(
+              'AI WORKER ERROR DATA:',
+              aiError?.response?.data ||
+              aiError?.message
+            );
 
             aiResult =
-              transcript?.text ||
-              transcript?.transcript ||
-              'Voice transcription completed';
+              'AI analysis unavailable';
 
             aiConfidence =
-              Number(
-                transcript?.confidence ||
-                90
-              );
-
-          }
-
-          else {
-
-            aiResult =
-              'AI analysis completed';
-
-            aiConfidence = 90;
+              0;
           }
         }
       }
@@ -637,6 +695,7 @@ rt.post(
       // -----------------------------------------
 
       rs.json({
+
         st:
           'Evidence uploaded successfully',
 
@@ -644,6 +703,7 @@ rt.post(
           ev.rows[0],
 
         ai: {
+
           result:
             aiResult,
 
@@ -652,6 +712,7 @@ rt.post(
         },
 
         gps: {
+
           latitude,
           longitude,
           location
@@ -669,6 +730,7 @@ rt.post(
       );
 
       rs.status(500).json({
+
         err:
           'Failed to upload evidence',
 
@@ -902,6 +964,7 @@ rt.post('/approve', async (q, rs) => {
     // -----------------------------------------
 
     rs.json({
+
       st:
         'Progress successfully updated',
 
@@ -926,6 +989,7 @@ rt.post('/approve', async (q, rs) => {
     );
 
     rs.status(500).json({
+
       err:
         'Failed to update progress',
 
@@ -1074,6 +1138,7 @@ rt.post('/reject', async (q, rs) => {
     // -----------------------------------------
 
     rs.json({
+
       st:
         'Evidence rejected successfully',
 
@@ -1098,6 +1163,7 @@ rt.post('/reject', async (q, rs) => {
     );
 
     rs.status(500).json({
+
       err:
         'Failed to reject evidence',
 
@@ -1218,6 +1284,7 @@ rt.post(
           // -----------------------------------
 
           rs.json({
+
             st:
               `Successfully imported ${tasks.length} WBS tasks into PostgreSQL.`
           });
@@ -1230,6 +1297,7 @@ rt.post(
           );
 
           rs.status(500).json({
+
             err:
               'Database insertion failed',
 
@@ -1317,6 +1385,7 @@ rt.get('/delay-alerts/:pid', async (q, rs) => {
           }
 
           return {
+
             activity_id:
               item.activity_id,
 
@@ -1346,6 +1415,7 @@ rt.get('/delay-alerts/:pid', async (q, rs) => {
         .filter(Boolean);
 
     rs.json({
+
       project_id:
         Number(pid),
 
@@ -1375,6 +1445,7 @@ rt.get('/delay-alerts/:pid', async (q, rs) => {
     );
 
     rs.status(500).json({
+
       err:
         'Failed to fetch delay alerts',
 
@@ -1669,6 +1740,7 @@ rt.get('/dashboard/:pid', async (q, rs) => {
           }
 
           return {
+
             activity_id:
               item.activity_id,
 
